@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+:root {
+  --color-background: #121212; /* Very dark gray (background) */
+  --color-foreground: #1e1e1e; /* Slightly lighter dark gray (foreground) */
+  --color-primary-text: #e0e0e0; /* Light gray (primary text) */
+  --color-secondary-text: #b0b0b0; /* Soft muted gray (secondary text) */
+}
+
+
+
+
+body{
+  height: 100%;
+  margin: 0;
+}
+
+canvas {
+  display: block;
+  background-color: black;
+}

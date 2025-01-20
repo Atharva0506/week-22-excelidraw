@@ -1,10 +1,11 @@
 {
   "name": "@repo/common",
   "version": "1.0.0",
-  "exports": {
-    "./types": "./src/types.ts"
-  },
   "main": "index.js",
+  "exports": {
+    "./types": "./src/types.ts",
+    "./ws-messages":"./src/ws-messages.ts"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
