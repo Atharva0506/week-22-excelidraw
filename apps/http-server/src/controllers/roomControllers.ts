@@ -65,11 +65,11 @@ export const getSlug = async (req: Request, res: Response) => {
     });
 
     if (!room) {
-      res.status(404).json({ error: `Room with slug "${slug}" not found.` });
+      res.status(404).json({ error: `Room with name "${slug}" not found.` });
       return;
     }
 
-    res.status(200).json({ room });
+    res.status(200).json({ roomId:room.id });
   } catch (error) {
     console.error("Error fetching room:", error);
 

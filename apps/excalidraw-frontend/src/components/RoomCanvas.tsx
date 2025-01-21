@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { Canvas } from "./Canvas";
 import { getCookie } from "@/utils/cookie";
 
-export function RoomCanvas({roomId}: {roomId: string}) {
+export const RoomCanvas= ({roomId}: {roomId: string}) => {
     const [socket, setSocket] = useState<WebSocket | null>(null);
 
     useEffect(() => {
@@ -24,7 +24,7 @@ export function RoomCanvas({roomId}: {roomId: string}) {
     }, [])
    
     if (!socket) {
-        return <div>
+        return <div className="flex justify-center items-center">
             Connecting to server....
         </div>
     }

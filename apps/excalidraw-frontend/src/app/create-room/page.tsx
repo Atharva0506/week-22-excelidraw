@@ -1,7 +1,8 @@
-import CreateRoomForm from "@/components/CreateRoom";
+import RoomNavigation from "@/components/Room";
+
 const CreateRoom = () => {
   return (
-    <CreateRoomForm/>
+    <RoomNavigation/>
   );
 };
 
