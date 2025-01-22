@@ -3,7 +3,7 @@
 import { WS_URL } from "@/config";
 import { useEffect, useState } from "react";
 import { Canvas } from "./Canvas";
-import { getCookie } from "@/utils/cookie";
+import { getCookie } from "@/lib/cookie";
 
 export const RoomCanvas= ({roomId}: {roomId: string}) => {
     const [socket, setSocket] = useState<WebSocket | null>(null);

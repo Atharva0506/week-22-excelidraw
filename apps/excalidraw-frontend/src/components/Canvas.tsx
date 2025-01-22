@@ -1,17 +1,17 @@
-"use client";
-
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useCallback } from "react";
 import { FiCircle, FiSquare, FiMinus, FiMousePointer } from "react-icons/fi";
 import { FaFont, FaRegHandPaper, FaLongArrowAltRight, FaPencilAlt } from "react-icons/fa";
 import { PiDiamond } from "react-icons/pi";
 import ToolButton from "./ToolButton";
-import { initDraw } from "@/utils/draw";
+import { initDraw } from "@/lib/canvas/draw";
+import { ZoomControl } from "./ZoomControl";
+import RedoUndo from "./RedoUndo";
 
 type ShapeType = "rect" | "circle" | "line" | "text" | "diamond" | "arrow" | "pencil";
 
 const tools = [
   { type: "hand", icon: FaRegHandPaper, title: "Hand" },
-  { type: null, icon: FiMousePointer, title: "Cursor" },
+  { type: "cursor", icon: FiMousePointer, title: "Cursor" },
   { type: "circle", icon: FiCircle, title: "Circle" },
   { type: "rect", icon: FiSquare, title: "Rectangle" },
   { type: "pencil", icon: FaPencilAlt, title: "Pencil" },
@@ -29,11 +29,9 @@ export const Canvas = ({
   roomId: string;
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const drawRef = useRef<ReturnType<typeof initDraw>>();
+  const drawRef = useRef<ReturnType<typeof initDraw> | null>(null);
   const [selectedTool, setSelectedTool] = useState<string | null>(null);
-
-  const [isDragging, setIsDragging] = useState(false);
-  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const [zoomLevel, setZoomLevel] = useState(1);
 
   useEffect(() => {
     if (canvasRef.current) {
@@ -41,57 +39,35 @@ export const Canvas = ({
         drawRef.current = drawInstance;
       });
     }
-  }, [canvasRef, roomId, socket]);
+  }, [roomId, socket]);
 
-  const setShapeType = (type: string | null) => {
+  const setShapeType = useCallback((type: string | null) => {
     setSelectedTool(type);
-    if (type) {
-      drawRef.current?.setShapeType(type as ShapeType);
+    if (type && drawRef.current) {
+      drawRef.current.setShapeType(type as ShapeType);
     }
+  }, []);
+
+
+  const zoomIn = () => {
+    setZoomLevel((prev) => Math.min(prev + 0.1, 2));
   };
 
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (selectedTool === "hand") {
-      setIsDragging(true);
-      setOffset({
-        x: e.clientX - offset.x,
-        y: e.clientY - offset.y,
-      });
-    }
-  };
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (isDragging) {
-      setOffset({
-        x: e.clientX - offset.x,
-        y: e.clientY - offset.y,
-      });
-    }
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
+  const zoomOut = () => {
+    setZoomLevel((prev) => Math.max(prev - 0.1, 0.5));
   };
 
   return (
-    <div
-      className="relative w-screen h-screen overflow-hidden bg-background"
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onMouseDown={handleMouseDown}
-    >
+    <div className="relative w-screen h-screen bg-background">
       <canvas
-        className="text-primary"
         ref={canvasRef}
-        width={2000}
-        height={1000}
-        style={{
-          cursor: selectedTool === "hand" ? "move" : "auto",
-          transform: `translate(${offset.x}px, ${offset.y}px)`,
-        }}
+        width={window.innerWidth}
+        height={window.innerHeight}
+        className="text-primary"
       ></canvas>
 
-      <div className="absolute top-4 left-1/2 transform -translate-x-1/2 flex gap-2 px-3 py-2 bg-foreground text-primary rounded-2xl shadow-lg text-sm sm:text-base md:text-lg">
+      <div className="fixed top-4 left-1/2 transform -translate-x-1/2 flex gap-2 px-3 py-2 bg-foreground text-primary rounded-2xl shadow-lg text-sm sm:text-base md:text-lg">
         {tools.map((tool) => (
           <ToolButton
             key={tool.type}
@@ -101,6 +77,18 @@ export const Canvas = ({
             onClick={() => setShapeType(tool.type)}
           />
         ))}
+      </div>
+
+      <div className="fixed bottom-4 left-4 flex items-center gap-2 w-[200px] h-[50px]">
+        <ZoomControl
+          zoomLevel={zoomLevel}
+          onZoomIn={zoomIn}
+          onZoomOut={zoomOut}
+        />
+        <RedoUndo
+          handleRedo={() => {}}
+          handleUndo={() => {}}
+        />
       </div>
     </div>
   );

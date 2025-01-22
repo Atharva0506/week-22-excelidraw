@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { WS_URL } from "@/config";
-import { getCookie } from "@/utils/cookie";
+import { getCookie } from "@/lib/cookie";
 
 export function useSocket() {
     const [loading, setLoading] = useState(true);

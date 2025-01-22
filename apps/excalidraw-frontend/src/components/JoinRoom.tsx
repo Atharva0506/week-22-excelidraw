@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { BACKEND_URL } from "@/config";
 import axios from "axios";
-import { getCookie } from "@/utils/cookie";
+import { getCookie } from "@/lib/cookie";
 
 const JoinRoomForm = () => {
   const router = useRouter();
@@ -42,11 +42,11 @@ const JoinRoomForm = () => {
       onSubmit={handleSubmit}
       className="w-full max-w-sm bg-foreground p-6 rounded-lg shadow-lg"
     >
-      <h2 className="text-xl font-semibold text-center mb-4 text-primary">
+      <h2 className="text-xl font-semibold text-center bg-foreground mb-4 text-primary">
         Join a Room
       </h2>
-      <div className="mb-4">
-        <label htmlFor="roomId" className="block text-primary">
+      <div className="mb-4 bg-foreground">
+        <label htmlFor="roomId" className="block  bg-foreground text-primary">
           Room Name
         </label>
         <input
@@ -55,11 +55,11 @@ const JoinRoomForm = () => {
           name="roomId"
           value={identifier}
           onChange={(e) => setIdentifier(e.target.value)}
-          className="w-full p-2 border border-gray-300 rounded mt-2"
+          className="w-full p-2 bg-foreground text-primary  border border-gray-300 rounded mt-2"
           required
           />
       </div>
-      {error && <div className="text-red-500 text-base mb-2">{error}</div>}
+      {error && <div className="text-red-500 text-base mb-2 bg-foreground">{error}</div>}
       <button
         type="submit"
         className="w-full py-2 px-4 bg-primary text-foreground rounded-md font-medium hover:bg-opacity-90"

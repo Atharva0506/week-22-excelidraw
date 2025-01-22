@@ -10,11 +10,10 @@ const RoomNavigation = () => {
   return (
     <div className="flex justify-center items-center min-h-screen">
       <div className="w-full max-w-md bg-foreground p-6 rounded-lg shadow-lg">
-        {/* Navigation Tabs */}
-        <div className="flex justify-around  mb-4">
+        <div className="flex justify-around bg-foreground  mb-4">
           <button
             onClick={() => setActiveTab('create')}
-            className={`w-1/2 py-2 text-center font-medium ${
+            className={`w-1/2 py-2 text-center bg-foreground font-medium ${
               activeTab === 'create'
                 ? 'text-primary border-b-2 border-primary'
                 : 'text-gray-500'

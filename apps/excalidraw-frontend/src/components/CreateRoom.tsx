@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { CreateRoomScheam } from '@repo/common/types';
 import axios from 'axios';
 import { BACKEND_URL } from '@/config';
-import { getCookie } from '@/utils/cookie';
+import { getCookie } from '@/lib/cookie';
 
 const CreateRoomForm = () => {
   const router = useRouter();
@@ -57,27 +57,27 @@ const CreateRoomForm = () => {
       onSubmit={handleCreateRoom}
       className="w-full max-w-sm bg-foreground p-6 rounded-lg shadow-lg"
     >
-      <h2 className="text-xl font-semibold text-center mb-4 text-primary">Create a Room</h2>
-      {error && <div className="text-red-500 text-sm mb-2">{error}</div>}
-      <div className="mb-4">
-        <label htmlFor="name" className="block text-primary">Room Name</label>
+      <h2 className="text-xl font-semibold text-center bg-foreground mb-4 text-primary">Create a Room</h2>
+      {error && <div className="text-red-500 text-sm mb-2 bg-foreground">{error}</div>}
+      <div className="mb-4 bg-foreground">
+        <label htmlFor="name" className="block bg-foreground text-primary">Room Name</label>
         <input
           type="text"
           id="name"
           name="name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full p-2 border border-gray-300 rounded mt-2"
+          className="w-full p-2 border bg-foreground text-primary  border-gray-300 rounded mt-2"
           required
         />
       </div>
-      <div className="mb-4">
-        <label className="text-primary inline-flex items-center">
+      <div className="mb-4 bg-foreground">
+        <label className="text-primary inline-flex items-center bg-foreground">
           <input
             type="checkbox"
             checked={isPrivate}
             onChange={(e) => setIsPrivate(e.target.checked)}
-            className="mr-2"
+            className="mr-2 bg-foreground text-primary "
           />
           Private Room
         </label>
