@@ -1,50 +1,4 @@
-import { FindElement, Shape } from "@/types";
-import { drawArrow, drawDiamond, drawPencil, fillColor } from "./shape";
-
-export function clearCanvas(
-  existingShapes: Shape[],
-  canvas: HTMLCanvasElement,
-  ctx: CanvasRenderingContext2D
-) {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  existingShapes.forEach((shape) => {
-    switch (shape.type) {
-      case "rect":
-        ctx.strokeStyle = fillColor;
-        ctx.strokeRect(shape.x, shape.y, shape.width, shape.height);
-        break;
-      case "circle":
-        ctx.strokeStyle = fillColor;
-        ctx.beginPath();
-        ctx.arc(shape.centerX, shape.centerY, shape.radius, 0, Math.PI * 2);
-        ctx.stroke();
-        break;
-      case "line":
-        ctx.strokeStyle = fillColor;
-        ctx.beginPath();
-        ctx.moveTo(shape.startX, shape.startY);
-        ctx.lineTo(shape.endX, shape.endY);
-        ctx.stroke();
-        break;
-      case "arrow":
-        drawArrow(ctx, shape.startX, shape.startY, shape.endX, shape.endY);
-        break;
-      case "diamond":
-        drawDiamond(
-          ctx,
-          shape.x,
-          shape.y,
-          shape.x + shape.width,
-          shape.y + shape.height
-        );
-        break;
-      case "pencil":
-        drawPencil(ctx, shape.points);
-        break;
-    }
-  });
-}
+import { FindElement, Tools } from "@/types";
 
 
 
@@ -55,7 +9,7 @@ export function clearCanvas(
 export function getElementAtPosition(
     x: number,
     y: number,
-    elements: Shape[]
+    elements: Tools[]
   ): FindElement | undefined {
     return elements.find((element) => isWithinElement(x, y, element));
   }
@@ -76,7 +30,7 @@ export function getElementAtPosition(
    * Diamonds: For a diamond shape, check if the point lies within the bounding box that encompasses the diamond. You can adjust this logic if you want to use a more accurate point-in-polygon check.
    * Pencil: For the pencil shape (which could be a freehand line), check if the point is near any of the path segments formed by consecutive points in the element.points array.
    */
-  function isWithinElement(x: number, y: number, element: Shape): boolean {
+  function isWithinElement(x: number, y: number, element: Tools): boolean {
     if (element.type === "rect") {
       return (
         x >= element.x! &&

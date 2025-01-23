@@ -1,13 +1,17 @@
-import { useRef, useEffect, useState, useCallback } from "react";
+import { useRef, useEffect, useState } from "react";
 import { FiCircle, FiSquare, FiMinus, FiMousePointer } from "react-icons/fi";
-import { FaFont, FaRegHandPaper, FaLongArrowAltRight, FaPencilAlt } from "react-icons/fa";
+import {
+  FaFont,
+  FaRegHandPaper,
+  FaLongArrowAltRight,
+  FaPencilAlt,
+} from "react-icons/fa";
 import { PiDiamond } from "react-icons/pi";
 import ToolButton from "./ToolButton";
-import { initDraw } from "@/lib/canvas/draw";
 import { ZoomControl } from "./ZoomControl";
 import RedoUndo from "./RedoUndo";
-
-type ShapeType = "rect" | "circle" | "line" | "text" | "diamond" | "arrow" | "pencil";
+import { CanvasBoard } from "@/lib/canvas/CanvasBoard";
+import { Tools } from "@/types";
 
 const tools = [
   { type: "hand", icon: FaRegHandPaper, title: "Hand" },
@@ -29,30 +33,23 @@ export const Canvas = ({
   roomId: string;
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const drawRef = useRef<ReturnType<typeof initDraw> | null>(null);
-  const [selectedTool, setSelectedTool] = useState<string | null>(null);
+  const [canvasBoard, setCanvasBoard] = useState<CanvasBoard>();
+  const [selectedTool, setSelectedTool] = useState<Tools['type']>("arrow");
   const [zoomLevel, setZoomLevel] = useState(1);
 
   useEffect(() => {
+    canvasBoard?.setTool(selectedTool);
+  }, [selectedTool, canvasBoard]);
+
+  useEffect(() => {
     if (canvasRef.current) {
-      initDraw(canvasRef.current, roomId, socket).then((drawInstance) => {
-        drawRef.current = drawInstance;
-      });
+      const board = new CanvasBoard(canvasRef.current, roomId, socket);
+      setCanvasBoard(board);
     }
-  }, [roomId, socket]);
-
-  const setShapeType = useCallback((type: string | null) => {
-    setSelectedTool(type);
-    if (type && drawRef.current) {
-      drawRef.current.setShapeType(type as ShapeType);
-    }
-  }, []);
-
-
+  }, [canvasRef,roomId,socket]);
   const zoomIn = () => {
     setZoomLevel((prev) => Math.min(prev + 0.1, 2));
   };
-
 
   const zoomOut = () => {
     setZoomLevel((prev) => Math.max(prev - 0.1, 0.5));
@@ -74,7 +71,7 @@ export const Canvas = ({
             icon={tool.icon}
             title={tool.title}
             isActive={selectedTool === tool.type}
-            onClick={() => setShapeType(tool.type)}
+            onClick={() => setSelectedTool(tool.type as Tools['type'])}
           />
         ))}
       </div>
@@ -85,10 +82,7 @@ export const Canvas = ({
           onZoomIn={zoomIn}
           onZoomOut={zoomOut}
         />
-        <RedoUndo
-          handleRedo={() => {}}
-          handleUndo={() => {}}
-        />
+        <RedoUndo handleRedo={() => {}} handleUndo={() => {}} />
       </div>
     </div>
   );

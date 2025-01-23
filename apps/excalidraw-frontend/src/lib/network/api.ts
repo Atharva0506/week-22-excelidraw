@@ -11,7 +11,7 @@ export async function getExistingShapes(roomId: string): Promise<Shape[]> {
         },
       });
       const messages = res.data;
-  
+      console.log(messages)
       if (!Array.isArray(messages)) {
         console.error("Unexpected response structure: messages is not an array");
         return [];

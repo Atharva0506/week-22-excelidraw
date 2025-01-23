@@ -1,3 +1,5 @@
+import { Tools } from "@/types";
+
 export const fillColor = "#e0dfff";
 
 export function drawArrow(
@@ -64,13 +66,13 @@ export function drawPencil(
 }
 
 export function createShape(
-  type: "rect" | "circle" | "line" | "arrow" | "diamond" | "pencil",
+  type: Tools['type'],
   startX: number,
   startY: number,
   endX: number,
   endY: number,
   pencilPoints: { x: number; y: number }[] = []
-) {
+):Tools | null {
   switch (type) {
     case "rect":
       return {
