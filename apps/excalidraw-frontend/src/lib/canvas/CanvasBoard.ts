@@ -89,7 +89,6 @@ export class CanvasBoard {
     this.clicked = true;
     this.startX = e.clientX;
     this.startY = e.clientY;
-
     const element = createShape(
       this.selectedTool,
       this.startX,
@@ -98,7 +97,8 @@ export class CanvasBoard {
       this.startY
     );
     if (!element) return;
-    this.existingShapes = [...this.existingShapes, element];
+    console.log(element)
+    this.existingShapes.push(element);
   };
 
   mouseMoveHandler = (e: MouseEvent) => {
@@ -115,6 +115,12 @@ export class CanvasBoard {
       endX,
       endY
     );
+    const elementCopy = [...this.existingShapes];
+    elementCopy[index] = element;
+    this.existingShapes = elementCopy;
+    this.clearCanvas();
+    this.renderShapes();
+    console.log(this.existingShapes)
   };
 
   mouseUpHandler = () => {
