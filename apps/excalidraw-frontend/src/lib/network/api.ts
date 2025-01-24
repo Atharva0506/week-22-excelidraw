@@ -1,9 +1,9 @@
 import { BACKEND_URL } from "@/config";
 import { getCookie } from "../cookie";
-import { Shape } from "@/types";
+import { Tools } from "@/types";
 import axios from "axios";
 
-export async function getExistingShapes(roomId: string): Promise<Shape[]> {
+export async function getExistingShapes(roomId: string): Promise<Tools[]> {
     try {
       const res = await axios.get(`${BACKEND_URL}/room/get-chats/${roomId}`, {
         headers: {
@@ -31,7 +31,7 @@ export async function getExistingShapes(roomId: string): Promise<Shape[]> {
             return null;
           }
         })
-        .filter((shape): shape is Shape => shape !== null);
+        .filter((shape): shape is Tools => shape !== null);
   
       return shapes;
     } catch (err) {

@@ -2,6 +2,14 @@ import { Tools } from "@/types";
 
 export const fillColor = "#e0dfff";
 
+/**
+ * Draws an arrow on a canvas.
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context.
+ * @param {number} startX - Starting x-coordinate.
+ * @param {number} startY - Starting y-coordinate.
+ * @param {number} endX - Ending x-coordinate.
+ * @param {number} endY - Ending y-coordinate.
+ */
 export function drawArrow(
   ctx: CanvasRenderingContext2D,
   startX: number,
@@ -13,11 +21,14 @@ export function drawArrow(
   const angle = Math.atan2(endY - startY, endX - startX);
 
   ctx.strokeStyle = fillColor;
+
+  // Draw the main line
   ctx.beginPath();
   ctx.moveTo(startX, startY);
   ctx.lineTo(endX, endY);
   ctx.stroke();
 
+  // Draw arrowhead
   ctx.beginPath();
   ctx.moveTo(endX, endY);
   ctx.lineTo(
@@ -32,6 +43,14 @@ export function drawArrow(
   ctx.stroke();
 }
 
+/**
+ * Draws a diamond shape on a canvas.
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context.
+ * @param {number} startX - Starting x-coordinate.
+ * @param {number} startY - Starting y-coordinate.
+ * @param {number} endX - Ending x-coordinate.
+ * @param {number} endY - Ending y-coordinate.
+ */
 export function drawDiamond(
   ctx: CanvasRenderingContext2D,
   startX: number,
@@ -41,8 +60,8 @@ export function drawDiamond(
 ) {
   const width = endX - startX;
   const height = endY - startY;
-  ctx.strokeStyle = fillColor;
 
+  ctx.strokeStyle = fillColor;
   ctx.beginPath();
   ctx.moveTo(startX + width / 2, startY);
   ctx.lineTo(startX, startY + height / 2);
@@ -52,67 +71,85 @@ export function drawDiamond(
   ctx.stroke();
 }
 
+/**
+ * Draws a freehand pencil line on a canvas.
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context.
+ * @param {{ x1: number; y1: number }[]} points - Array of points for the pencil line.
+ */
 export function drawPencil(
   ctx: CanvasRenderingContext2D,
-  points: { x: number; y: number }[]
+  points: { x1: number; y1: number }[]
 ) {
+  if (points.length < 2) return;
+
   ctx.strokeStyle = fillColor;
   ctx.beginPath();
-  ctx.moveTo(points[0].x, points[0].y);
+  ctx.moveTo(points[0].x1, points[0].y1);
   points.forEach((point) => {
-    ctx.lineTo(point.x, point.y);
+    ctx.lineTo(point.x1, point.y1);
   });
   ctx.stroke();
 }
 
+/**
+ * Creates a shape object based on the specified type.
+ * @param {Tools["type"]} type - Type of the shape.
+ * @param {number} startX - Starting x-coordinate.
+ * @param {number} startY - Starting y-coordinate.
+ * @param {number} endX - Ending x-coordinate.
+ * @param {number} endY - Ending y-coordinate.
+ * @param {{ x1: number; y1: number }[]} [pencilPoints] - Array of points for the pencil line (optional).
+ * @returns {Tools | null} - Shape object or null if the type is unsupported.
+ */
 export function createShape(
-  type: Tools['type'],
+  type: Tools["type"],
   startX: number,
   startY: number,
   endX: number,
   endY: number,
-  pencilPoints: { x: number; y: number }[] = []
-):Tools | null {
+  pencilPoints: { x1: number; y1: number }[] = []
+): Tools | null {
   switch (type) {
     case "rect":
       return {
         type: "rect",
-        x: startX,
-        y: startY,
-        width: endX - startX,
-        height: endY - startY,
+        x1: startX,
+        y1: startY,
+        x2: endX - startX,
+        y2: endY - startY,
       };
-    case "circle":
+    case "circle": {
       const radius = Math.sqrt((endX - startX) ** 2 + (endY - startY) ** 2);
       return {
         type: "circle",
-        centerX: startX,
-        centerY: startY,
+        x1: startX,
+        y1: startY,
         radius,
       };
+    }
     case "line":
       return {
         type: "line",
-        startX,
-        startY,
-        endX,
-        endY,
+        x1: startX,
+        y1: startY,
+        x2: endX,
+        y2: endY,
       };
     case "arrow":
       return {
         type: "arrow",
-        startX,
-        startY,
-        endX,
-        endY,
+        x1: startX,
+        y1: startY,
+        x2: endX,
+        y2: endY,
       };
     case "diamond":
       return {
         type: "diamond",
-        x: startX,
-        y: startY,
-        width: endX - startX,
-        height: endY - startY,
+        x1: startX,
+        y1: startY,
+        x2: endX - startX,
+        y2: endY - startY,
       };
     case "pencil":
       return {

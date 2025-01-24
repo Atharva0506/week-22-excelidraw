@@ -1,6 +1,11 @@
 import { Tools } from "@/types";
-import { createShape, drawArrow, drawDiamond, drawPencil, fillColor } from "./shape";
-import { getExistingShapes } from "../network/api";
+import {
+  createShape,
+  drawArrow,
+  drawDiamond,
+  drawPencil,
+  fillColor,
+} from "./shape";
 
 export class CanvasBoard {
   private canvas: HTMLCanvasElement;
@@ -11,8 +16,8 @@ export class CanvasBoard {
   private clicked: boolean;
   private startX = 0;
   private startY = 0;
-  private selectedTool: Tools["type"] = "circle";
-  private pencilPoints: { x: number; y: number }[] = [];
+  private selectedTool: Tools["type"] = "cursor";
+  private pencilPoints: { x1: number; y1: number }[] = [];
 
   constructor(canvas: HTMLCanvasElement, roomId: string, socket: WebSocket) {
     this.canvas = canvas;
@@ -21,8 +26,8 @@ export class CanvasBoard {
     this.roomId = roomId;
     this.socket = socket;
     this.clicked = false;
+
     this.init();
-    this.initHandlers();
     this.initMouseHandlers();
   }
 
@@ -31,141 +36,94 @@ export class CanvasBoard {
   }
 
   async init() {
-    this.existingShapes = await getExistingShapes(this.roomId);
-    console.log(this.existingShapes);
+    this.existingShapes = [];
     this.clearCanvas();
-  }
-
-  initHandlers() {
-    this.socket.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-
-      if (message.type === "chat") {
-        const parsedShape = JSON.parse(message.message);
-        this.existingShapes.push(parsedShape.shape);
-        this.clearCanvas();
-      }
-    };
+    this.renderShapes();
   }
 
   clearCanvas() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  }
 
+  renderShapes() {
     this.existingShapes.forEach((shape) => {
       switch (shape.type) {
         case "rect":
           this.ctx.strokeStyle = fillColor;
-          this.ctx.strokeRect(shape.x, shape.y, shape.width, shape.height);
+          this.ctx.strokeRect(
+            shape.x1,
+            shape.y1,
+            shape.x2 - shape.x1,
+            shape.y2 - shape.y1
+          );
           break;
         case "circle":
           this.ctx.strokeStyle = fillColor;
           this.ctx.beginPath();
-          this.ctx.arc(shape.centerX, shape.centerY, shape.radius, 0, Math.PI * 2);
+          this.ctx.arc(shape.x1, shape.y1, shape.radius, 0, Math.PI * 2);
           this.ctx.stroke();
           break;
         case "line":
           this.ctx.strokeStyle = fillColor;
           this.ctx.beginPath();
-          this.ctx.moveTo(shape.startX, shape.startY);
-          this.ctx.lineTo(shape.endX, shape.endY);
+          this.ctx.moveTo(shape.x1, shape.y1);
+          this.ctx.lineTo(shape.x2, shape.y2);
           this.ctx.stroke();
           break;
         case "arrow":
-          drawArrow(this.ctx, shape.startX, shape.startY, shape.endX, shape.endY);
+          drawArrow(this.ctx, shape.x1, shape.y1, shape.x2, shape.y2);
           break;
         case "diamond":
-          drawDiamond(this.ctx, shape.x, shape.y, shape.x + shape.width, shape.y + shape.height);
+          drawDiamond(this.ctx, shape.x1, shape.y1, shape.x2, shape.y2);
           break;
         case "pencil":
-          drawPencil(this.ctx, shape.points);
+          drawPencil(this.ctx, shape.points || []);
           break;
       }
     });
   }
 
   mouseDownHandler = (e: MouseEvent) => {
+    if (!this.selectedTool || this.selectedTool === "cursor") return;
+
     this.clicked = true;
-    this.startX = e.offsetX; // Use offsetX instead of clientX
-    this.startY = e.offsetY; // Use offsetY instead of clientY
-    this.pencilPoints = []; // Clear pencil points at the start of drawing
-  };
+    this.startX = e.clientX;
+    this.startY = e.clientY;
 
-  mouseUpHandler = (e: MouseEvent) => {
-    this.clicked = false;
-    const endX = e.offsetX; // Use offsetX instead of clientX
-    const endY = e.offsetY; // Use offsetY instead of clientY
-
-    const shape = createShape(this.selectedTool, this.startX, this.startY, endX, endY);
-    if (!shape) return;
-
-    this.existingShapes.push(shape);
-
-    this.socket.send(
-      JSON.stringify({
-        type: "chat",
-        message: JSON.stringify({ shape }),
-        roomId: this.roomId,
-      })
+    const element = createShape(
+      this.selectedTool,
+      this.startX,
+      this.startY,
+      this.startX,
+      this.startY
     );
+    if (!element) return;
+    this.existingShapes = [...this.existingShapes, element];
   };
 
   mouseMoveHandler = (e: MouseEvent) => {
-    if (!this.clicked) return;
+    if (!this.clicked || this.selectedTool == "cursor") return;
 
-    const endX = e.offsetX; // Use offsetX instead of clientX
-    const endY = e.offsetY; // Use offsetY instead of clientY
+    const endX = e.clientX;
+    const endY = e.clientY;
+    const index = this.existingShapes.length - 1;
+    const { x1, x2 } = this.existingShapes[index];
+    const element = createShape(
+      this.selectedTool,
+      this.startX,
+      this.startY,
+      endX,
+      endY
+    );
+  };
 
-    if (this.selectedTool === "cursor") {
-      return;
-    } else {
-      this.drawPreview(this.ctx, this.selectedTool, this.startX, this.startY, endX, endY, this.pencilPoints);
-      this.clearCanvas();
-    }
+  mouseUpHandler = () => {
+    this.clicked = false;
   };
 
   initMouseHandlers() {
     this.canvas.addEventListener("mousedown", this.mouseDownHandler);
     this.canvas.addEventListener("mouseup", this.mouseUpHandler);
     this.canvas.addEventListener("mousemove", this.mouseMoveHandler);
-  }
-
-  drawPreview(
-    ctx: CanvasRenderingContext2D,
-    type: Tools["type"],
-    startX: number,
-    startY: number,
-    endX: number,
-    endY: number,
-    pencilPoints: { x: number; y: number }[]
-  ) {
-    ctx.strokeStyle = fillColor;
-
-    switch (type) {
-      case "rect":
-        ctx.strokeRect(startX, startY, endX - startX, endY - startY);
-        break;
-      case "circle":
-        const radius = Math.sqrt((endX - startX) ** 2 + (endY - startY) ** 2);
-        ctx.beginPath();
-        ctx.arc(startX, startY, radius, 0, Math.PI * 2);
-        ctx.stroke();
-        break;
-      case "line":
-        ctx.beginPath();
-        ctx.moveTo(startX, startY);
-        ctx.lineTo(endX, endY);
-        ctx.stroke();
-        break;
-      case "arrow":
-        drawArrow(ctx, startX, startY, endX, endY);
-        break;
-      case "diamond":
-        drawDiamond(ctx, startX, startY, endX, endY);
-        break;
-      case "pencil":
-        pencilPoints.push({ x: endX, y: endY });
-        drawPencil(ctx, pencilPoints);
-        break;
-    }
   }
 }

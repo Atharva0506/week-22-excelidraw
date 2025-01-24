@@ -10,7 +10,7 @@ export function getElementAtPosition(
     x: number,
     y: number,
     elements: Tools[]
-  ): FindElement | undefined {
+  ): FindElement  {
     return elements.find((element) => isWithinElement(x, y, element));
   }
   
