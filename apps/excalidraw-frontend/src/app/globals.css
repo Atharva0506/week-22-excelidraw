@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+:root {
+  --color-background: #121212; 
+  --color-foreground: #242329; 
+  --color-primary-text: #e0dfff; 
+  --color-secondary-text: #403f6b; 
+}
+
+
+*{
+ margin: 0;
+ padding: 0;
+ background-color: var(--color-background);
+}
+
+canvas {
+  background-color: var(--color-background) !important;
+  border: 2px solid red;
+}
