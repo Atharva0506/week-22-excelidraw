@@ -35,7 +35,7 @@ export function drawLine(
     y1: startY,
     x2: endX,
     y2: endY,
-  }
+  };
 }
 
 export function drawArrow(
@@ -73,7 +73,7 @@ export function drawArrow(
     y1: startY,
     x2: endX,
     y2: endY,
-  }
+  };
 }
 
 export function drawCircle(
@@ -81,9 +81,13 @@ export function drawCircle(
   startX: number,
   startY: number,
   endX: number,
-  endY: number
+  endY: number,
+  radius = 0
 ) {
-  const radius = Math.sqrt((endX - startX) ** 2 + (endY - startY) ** 2);
+  if (radius == 0) {
+    radius = Math.sqrt((endX - startX) ** 2 + (endY - startY) ** 2);
+  }
+  
   ctx.strokeStyle = fillColor;
   ctx.beginPath();
   ctx.arc(startX, startY, radius, 0, Math.PI * 2);
@@ -92,9 +96,8 @@ export function drawCircle(
     type: "circle",
     x1: startX,
     y1: startY,
-    x2: endX,
-    y2: endY,
-  }
+    radius,
+  };
 }
 export function drawDiamond(
   ctx: CanvasRenderingContext2D,
@@ -120,7 +123,7 @@ export function drawDiamond(
     y1: startY,
     x2: endX,
     y2: endY,
-  }
+  };
 }
 
 export function drawPencil(
@@ -137,7 +140,7 @@ export function drawPencil(
   });
   ctx.stroke();
   return {
-    type:"pencil",
-    points
-  }
+    type: "pencil",
+    points,
+  };
 }

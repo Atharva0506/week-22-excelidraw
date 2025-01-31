@@ -15,6 +15,7 @@ export const createShape = (
   y1: number,
   x2: number,
   y2: number,
+  radius:number = 0,
   pencilPoints: { x1: number; y1: number }[] = []
 ) => {
   switch (type) {
@@ -25,7 +26,7 @@ export const createShape = (
     case "arrow":
       return drawArrow(ctx, x1, y1, x2, y2);
     case "circle":
-      return drawCircle(ctx, x1, y1, x2, y2);
+      return drawCircle(ctx, x1, y1, x2, y2,radius);
     case "diamond":
       return drawDiamond(ctx, x1, y1, x2, y2);
     case "pencil":

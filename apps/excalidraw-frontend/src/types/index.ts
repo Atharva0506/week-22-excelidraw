@@ -13,19 +13,3 @@ export type Tools =
   | { type: "pencil"; points: { x1: number; y1: number }[] }
   | { type: "cursor" };
 
-
-  export type FindElement = {
-    type: string;
-    x?: number;
-    y?: number;
-    width?: number;
-    height?: number;
-    centerX?: number;
-    centerY?: number;
-    radius?: number;
-    startX?: number;
-    startY?: number;
-    endX?: number;
-    endY?: number;
-    points?: { x: number; y: number }[];
-  };
