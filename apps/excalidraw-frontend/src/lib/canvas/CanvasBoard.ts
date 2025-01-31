@@ -100,7 +100,6 @@ export class CanvasBoard {
         this.selectedElement.x2 += dx;
         this.selectedElement.y2 += dy;
       } else if (this.selectedElement.type === "circle") {
-      
         this.selectedElement.x1 = e.clientX + this.offsetX;
         this.selectedElement.y1 = e.clientY + this.offsetY;
       } else if (this.selectedElement.type === "pencil") {
@@ -120,6 +119,7 @@ export class CanvasBoard {
       this.startY,
       e.clientX,
       e.clientY,
+      0,
       this.pencilPoints
     );
   };
@@ -135,6 +135,7 @@ export class CanvasBoard {
         this.startY,
         e.clientX,
         e.clientY,
+        0,
         this.pencilPoints
       );
       if (element) {
