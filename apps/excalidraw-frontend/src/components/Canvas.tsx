@@ -56,15 +56,15 @@ export const Canvas = ({
   };
 
   return (
-    <div className="relative w-screen h-screen bg-background">
+    <div className="relative w-screen h-screen bg-background overflow-hidden">
       <canvas
         ref={canvasRef}
         width={window.innerWidth}
         height={window.innerHeight}
-        className="text-primary"
+        className="text-primary absolute z-0"
       ></canvas>
 
-      <div className="fixed top-4 left-1/2 transform -translate-x-1/2 flex gap-2 px-3 py-2 bg-foreground text-primary rounded-2xl shadow-lg text-sm sm:text-base md:text-lg">
+      <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-10 flex gap-2 px-3 py-2 bg-foreground text-primary rounded-2xl shadow-lg text-sm sm:text-base md:text-lg">
         {tools.map((tool) => (
           <ToolButton
             key={tool.type}

@@ -11,5 +11,5 @@ export type Tools =
     }
   | { type: "diamond"; x1: number; y1: number; x2: number; y2: number }
   | { type: "pencil"; points: { x1: number; y1: number }[] }
-  | { type: "cursor" };
-
+  | { type: "cursor" }
+  | { type: "hand" };

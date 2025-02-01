@@ -21,7 +21,7 @@ export const RoomCanvas= ({roomId}: {roomId: string}) => {
             ws.send(data)
         }
         
-    }, [])
+    }, [roomId])
    
     if (!socket) {
         return <div className="flex justify-center items-center">

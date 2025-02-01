@@ -20,6 +20,8 @@ export class CanvasBoard {
   private startY = 0;
   private offsetX = 0;
   private offsetY = 0;
+  private panX = 0;
+  private panY = 0;
   private selectedTool: Tools["type"] = "cursor";
   private pencilPoints: { x1: number; y1: number }[] = [];
   private selectedElement: Tools | null;
@@ -46,13 +48,22 @@ export class CanvasBoard {
 
   clearCanvas() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.ctx.save();
+    this.ctx.translate(this.panX, this.panY);
     this.existingShapes.forEach((shape) => {
       if (shape.type === "pencil") {
         drawPencil(this.ctx, shape.points);
       } else if (shape.type === "rect") {
         drawRect(this.ctx, shape.x1, shape.y1, shape.x2, shape.y2);
       } else if (shape.type === "circle") {
-        drawCircle(this.ctx, shape.x1, shape.y1,undefined ,undefined,shape.radius);
+        drawCircle(
+          this.ctx,
+          shape.x1,
+          shape.y1,
+          undefined,
+          undefined,
+          shape.radius
+        );
       } else if (shape.type === "arrow") {
         drawArrow(this.ctx, shape.x1, shape.y1, shape.x2, shape.y2);
       } else if (shape.type === "diamond") {
@@ -61,14 +72,16 @@ export class CanvasBoard {
         drawLine(this.ctx, shape.x1, shape.y1, shape.x2, shape.y2);
       }
     });
+    this.ctx.restore();
   }
 
   mouseDownHandler = (e: MouseEvent) => {
     if (!this.selectedTool) return;
-   
+
     this.clicked = true;
-    this.startX = e.clientX;
-    this.startY = e.clientY;
+    this.startX = e.clientX + this.panX;
+    this.startY = e.clientY + this.panY;
+    console.log(this.startX, this.startY);
     if (this.selectedTool === "cursor") {
       const element = getElementAtPosition(
         e.clientX,
@@ -92,6 +105,7 @@ export class CanvasBoard {
 
   mouseMoveHandler = (e: MouseEvent) => {
     if (!this.clicked) return;
+
     this.clearCanvas();
     if (this.selectedTool === "cursor" && this.selectedElement) {
       const dx = e.clientX - this.startX;
@@ -167,12 +181,18 @@ export class CanvasBoard {
       );
     }
     this.selectedElement = null;
+
     this.clearCanvas();
   };
-
+  wheelHandler = (e: WheelEvent) => {
+    this.panX += e.deltaX;
+    this.panY += e.deltaY;
+    this.clearCanvas();
+  };
   initMouseHandlers() {
     this.canvas.addEventListener("mousedown", this.mouseDownHandler);
     this.canvas.addEventListener("mouseup", this.mouseUpHandler);
     this.canvas.addEventListener("mousemove", this.mouseMoveHandler);
+    this.canvas.addEventListener("wheel", this.wheelHandler);
   }
 }
