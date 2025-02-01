@@ -77,10 +77,9 @@ export class CanvasBoard {
 
   mouseDownHandler = (e: MouseEvent) => {
     if (!this.selectedTool) return;
-
     this.clicked = true;
-    this.startX = e.clientX + this.panX;
-    this.startY = e.clientY + this.panY;
+    this.startX = e.clientX - this.panX;
+    this.startY = e.clientY - this.panY;
     console.log(this.startX, this.startY);
     if (this.selectedTool === "cursor") {
       const element = getElementAtPosition(
@@ -184,6 +183,7 @@ export class CanvasBoard {
 
     this.clearCanvas();
   };
+  // TODO FIX THIS
   wheelHandler = (e: WheelEvent) => {
     this.panX += e.deltaX;
     this.panY += e.deltaY;
