@@ -1,6 +1,13 @@
 import { Tools } from "@/types";
-import { createShape } from "./createShape";
 import { getElementAtPosition } from "./canvas-utils";
+import {
+  drawArrow,
+  drawCircle,
+  drawDiamond,
+  drawLine,
+  drawPencil,
+  drawRect,
+} from "./shape";
 
 export class CanvasBoard {
   private canvas: HTMLCanvasElement;
@@ -40,22 +47,25 @@ export class CanvasBoard {
   clearCanvas() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.existingShapes.forEach((shape) => {
-      createShape(
-        this.ctx,
-        shape.type,
-        shape.x1,
-        shape.y1,
-        shape.x2,
-        shape.y2,
-        shape.radius,
-        shape.points
-      );
+      if (shape.type === "pencil") {
+        drawPencil(this.ctx, shape.points);
+      } else if (shape.type === "rect") {
+        drawRect(this.ctx, shape.x1, shape.y1, shape.x2, shape.y2);
+      } else if (shape.type === "circle") {
+        drawCircle(this.ctx, shape.x1, shape.y1,undefined ,undefined,shape.radius);
+      } else if (shape.type === "arrow") {
+        drawArrow(this.ctx, shape.x1, shape.y1, shape.x2, shape.y2);
+      } else if (shape.type === "diamond") {
+        drawDiamond(this.ctx, shape.x1, shape.y1, shape.x2, shape.y2);
+      } else if (shape.type === "line") {
+        drawLine(this.ctx, shape.x1, shape.y1, shape.x2, shape.y2);
+      }
     });
   }
 
   mouseDownHandler = (e: MouseEvent) => {
     if (!this.selectedTool) return;
-    console.log("exsting shape", JSON.stringify(this.existingShapes));
+   
     this.clicked = true;
     this.startX = e.clientX;
     this.startY = e.clientY;
@@ -68,9 +78,10 @@ export class CanvasBoard {
 
       if (element) {
         this.selectedElement = element;
-        this.offsetX = this.selectedElement.x1 - e.clientX;
-        this.offsetY = this.selectedElement.y1 - e.clientY;
-        console.log(this.selectedElement);
+        if (this.selectedElement.type === "circle") {
+          this.offsetX = this.selectedElement.x1 - e.clientX;
+          this.offsetY = this.selectedElement.y1 - e.clientY;
+        }
       }
     }
 
@@ -109,51 +120,51 @@ export class CanvasBoard {
         });
       }
     }
+
     if (this.selectedTool === "pencil") {
       this.pencilPoints.push({ x1: e.clientX, y1: e.clientY });
+      drawPencil(this.ctx, this.pencilPoints);
+    } else if (this.selectedTool === "rect") {
+      drawRect(this.ctx, this.startX, this.startY, e.clientX, e.clientY);
+    } else if (this.selectedTool === "circle") {
+      drawCircle(this.ctx, this.startX, this.startY, e.clientX, e.clientY);
+    } else if (this.selectedTool === "arrow") {
+      drawArrow(this.ctx, this.startX, this.startY, e.clientX, e.clientY);
+    } else if (this.selectedTool === "diamond") {
+      drawDiamond(this.ctx, this.startX, this.startY, e.clientX, e.clientY);
+    } else if (this.selectedTool === "line") {
+      drawLine(this.ctx, this.startX, this.startY, e.clientX, e.clientY);
     }
-    createShape(
-      this.ctx,
-      this.selectedTool,
-      this.startX,
-      this.startY,
-      e.clientX,
-      e.clientY,
-      0,
-      this.pencilPoints
-    );
   };
 
   mouseUpHandler = (e: MouseEvent) => {
     this.clicked = false;
 
     if (this.selectedTool === "pencil") {
-      const element = createShape(
-        this.ctx,
-        this.selectedTool,
-        this.startX,
-        this.startY,
-        e.clientX,
-        e.clientY,
-        0,
-        this.pencilPoints
-      );
+      const element = drawPencil(this.ctx, this.pencilPoints);
       if (element) {
         this.existingShapes.push(element);
       }
-      this.pencilPoints = [];
-    } else {
-      const element = createShape(
-        this.ctx,
-        this.selectedTool,
-        this.startX,
-        this.startY,
-        e.clientX,
-        e.clientY
+    } else if (this.selectedTool === "rect") {
+      this.existingShapes.push(
+        drawRect(this.ctx, this.startX, this.startY, e.clientX, e.clientY)
       );
-      if (element) {
-        this.existingShapes.push(element);
-      }
+    } else if (this.selectedTool === "circle") {
+      this.existingShapes.push(
+        drawCircle(this.ctx, this.startX, this.startY, e.clientX, e.clientY)
+      );
+    } else if (this.selectedTool === "arrow") {
+      this.existingShapes.push(
+        drawArrow(this.ctx, this.startX, this.startY, e.clientX, e.clientY)
+      );
+    } else if (this.selectedTool === "diamond") {
+      this.existingShapes.push(
+        drawDiamond(this.ctx, this.startX, this.startY, e.clientX, e.clientY)
+      );
+    } else if (this.selectedTool === "line") {
+      this.existingShapes.push(
+        drawLine(this.ctx, this.startX, this.startY, e.clientX, e.clientY)
+      );
     }
     this.selectedElement = null;
     this.clearCanvas();

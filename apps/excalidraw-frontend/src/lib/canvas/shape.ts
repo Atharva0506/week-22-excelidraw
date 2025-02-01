@@ -1,3 +1,5 @@
+import { Tools } from "@/types";
+
 export const fillColor = "#e0dfff";
 
 export function drawRect(
@@ -6,7 +8,7 @@ export function drawRect(
   startY: number,
   endX: number,
   endY: number
-) {
+)  :Tools {
   ctx.strokeStyle = fillColor;
   ctx.strokeRect(startX, startY, endX - startX, endY - startY);
   return {
@@ -23,7 +25,7 @@ export function drawLine(
   startY: number,
   endX: number,
   endY: number
-) {
+) :Tools {
   ctx.strokeStyle = fillColor;
   ctx.beginPath();
   ctx.moveTo(startX, startY);
@@ -44,7 +46,7 @@ export function drawArrow(
   startY: number,
   endX: number,
   endY: number
-) {
+) :Tools {
   const headLength = 10;
   const angle = Math.atan2(endY - startY, endX - startX);
 
@@ -80,12 +82,12 @@ export function drawCircle(
   ctx: CanvasRenderingContext2D,
   startX: number,
   startY: number,
-  endX: number,
-  endY: number,
+  endX?: number,
+  endY?: number,
   radius = 0
-) {
+) : Tools{
   if (radius == 0) {
-    radius = Math.sqrt((endX - startX) ** 2 + (endY - startY) ** 2);
+    radius = Math.sqrt((endX! - startX) ** 2 + (endY! - startY) ** 2);
   }
   
   ctx.strokeStyle = fillColor;
@@ -105,7 +107,7 @@ export function drawDiamond(
   startY: number,
   endX: number,
   endY: number
-) {
+) :Tools {
   const width = endX - startX;
   const height = endY - startY;
 
@@ -129,7 +131,7 @@ export function drawDiamond(
 export function drawPencil(
   ctx: CanvasRenderingContext2D,
   points: { x1: number; y1: number }[]
-) {
+) : Tools | undefined {
   if (points.length < 2) return;
 
   ctx.strokeStyle = fillColor;
