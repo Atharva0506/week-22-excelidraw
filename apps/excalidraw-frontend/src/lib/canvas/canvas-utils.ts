@@ -20,31 +20,30 @@ export function getElementAtPosition(x: number, y: number, elements: Tools[]) {
  * Diamonds: For a diamond shape, check if the point lies within the bounding box that encompasses the diamond. You can adjust this logic if you want to use a more accurate point-in-polygon check.
  * Pencil: For the pencil shape (which could be a freehand line), check if the point is near any of the path segments formed by consecutive points in the element.points array.
  */
-
 export function isWithinElement(x: number, y: number, element: Tools) {
   switch (element.type) {
     case "rect": {
-      const minX = Math.min(element.x1, element.x2);
-      const maxX = Math.max(element.x1, element.x2);
-      const minY = Math.min(element.y1, element.y2);
-      const maxY = Math.max(element.y1, element.y2);
+      const minX = element.x;
+      const maxX = element.x + element.width;
+      const minY = element.y;
+      const maxY = element.y + element.height;
       return x >= minX && x <= maxX && y >= minY && y <= maxY;
     }
 
-    case "circle": {
-      // https://stackoverflow.com/questions/16792841/detect-if-user-clicks-inside-a-circle
-      const distancesquared = (x - element.x1) * (x - element.x1) + (y - element.y1) * (y - element.y1);
-      return distancesquared <= element.radius * element.radius;
+    case "ellipse": {
+      const dx = (x - element.centerX) / element.radX;
+      const dy = (y - element.centerY) / element.radY;
+      return dx * dx + dy * dy <= 1;
     }
 
     case "line": {
       return isPointNearLine(
         x,
         y,
-        element.x1,
-        element.y1,
-        element.x2,
-        element.y2
+        element.fromX,
+        element.fromY,
+        element.toX,
+        element.toY
       );
     }
 
@@ -52,38 +51,41 @@ export function isWithinElement(x: number, y: number, element: Tools) {
       return isPointNearLine(
         x,
         y,
-        element.x1,
-        element.y1,
-        element.x2,
-        element.y2
+        element.fromX,
+        element.fromY,
+        element.toX,
+        element.toY
       );
     }
-
+// TODO FIX THIS
     case "diamond": {
-      const centerX = (element.x1 + element.x2) / 2;
-      const centerY = (element.y1 + element.y2) / 2;
-      const halfWidth = Math.abs(element.x2 - element.x1) / 2;
-      const halfHeight = Math.abs(element.y2 - element.y1) / 2;
+      const centerX = element.x + element.width / 2;
+      const centerY = element.y + element.height / 2;
+      const halfWidth = element.width / 2;
+      const halfHeight = element.height / 2;
+      
       const dx = Math.abs(x - centerX);
       const dy = Math.abs(y - centerY);
+      
       return dx / halfWidth + dy / halfHeight <= 1;
     }
 
     case "pencil": {
       return element.points.some((point, index, points) => {
-        if (index === 0) return false;
+        if (index === 0) return false;  // Skip first point
         return isPointNearLine(
           x,
           y,
-          points[index - 1].x1,
-          points[index - 1].y1,
-          point.x1,
-          point.y1
+          points[index - 1].x,
+          points[index - 1].y,
+          point.x,
+          point.y
         );
       });
     }
 
     case "cursor":
+    case "hand":
       return false;
 
     default:
@@ -91,8 +93,7 @@ export function isWithinElement(x: number, y: number, element: Tools) {
   }
 }
 
-//  check if a point is near a line segment
-// refrance link for below code  : https://stackoverflow.com/questions/17692922/check-is-a-point-x-y-is-between-two-points-drawn-on-a-straight-line/17693146#17693146ZZ
+// Check if a point is near a line segment
 function isPointNearLine(
   x: number,
   y: number,

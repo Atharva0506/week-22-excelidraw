@@ -16,7 +16,7 @@ import { Tools } from "@/types";
 const tools = [
   { type: "hand", icon: FaRegHandPaper, title: "Hand" },
   { type: "cursor", icon: FiMousePointer, title: "Cursor" },
-  { type: "circle", icon: FiCircle, title: "Circle" },
+  { type: "ellipse", icon: FiCircle, title: "Ellipse" },
   { type: "rect", icon: FiSquare, title: "Rectangle" },
   { type: "pencil", icon: FaPencilAlt, title: "Pencil" },
   { type: "line", icon: FiMinus, title: "Line" },
@@ -36,6 +36,7 @@ export const Canvas = ({
   const [canvasBoard, setCanvasBoard] = useState<CanvasBoard>();
   const [selectedTool, setSelectedTool] = useState<Tools['type']>("arrow");
   const [zoomLevel, setZoomLevel] = useState(1);
+  const [scale, setScale] = useState<number>(1)
 
   useEffect(() => {
     canvasBoard?.setTool(selectedTool);
@@ -43,17 +44,15 @@ export const Canvas = ({
 
   useEffect(() => {
     if (canvasRef.current) {
-      const board = new CanvasBoard(canvasRef.current, roomId, socket);
+      const board = new CanvasBoard(canvasRef.current, roomId, socket, (newScale) => setScale(newScale));
       setCanvasBoard(board);
     }
   }, [canvasRef,roomId,socket]);
-  const zoomIn = () => {
-    setZoomLevel((prev) => Math.min(prev + 0.1, 2));
-  };
 
-  const zoomOut = () => {
-    setZoomLevel((prev) => Math.max(prev - 0.1, 0.5));
-  };
+  useEffect(()=>{
+    setScale(canvasBoard?.outputScale || 1)
+}, [canvasBoard?.outputScale])
+
 
   return (
     <div className="relative w-screen h-screen bg-background overflow-hidden">
@@ -78,9 +77,7 @@ export const Canvas = ({
 
       <div className="fixed bottom-4 left-4 flex items-center gap-2 w-[200px] h-[50px]">
         <ZoomControl
-          zoomLevel={zoomLevel}
-          onZoomIn={zoomIn}
-          onZoomOut={zoomOut}
+         scale={scale} setScale={setScale}
         />
         <RedoUndo handleRedo={() => {}} handleUndo={() => {}} />
       </div>

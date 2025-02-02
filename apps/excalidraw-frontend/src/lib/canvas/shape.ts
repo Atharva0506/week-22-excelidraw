@@ -4,145 +4,179 @@ export const fillColor = "#e0dfff";
 
 export function drawRect(
   ctx: CanvasRenderingContext2D,
-  startX: number,
-  startY: number,
-  endX: number,
-  endY: number
-)  :Tools {
-  ctx.strokeStyle = fillColor;
-  ctx.strokeRect(startX, startY, endX - startX, endY - startY);
-  return {
-    type: "rect",
-    x1: startX,
-    y1: startY,
-    x2: endX,
-    y2: endY,
-  };
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  strokeWidth: number,
+  strokeFill: string,
+  bgFill: string
+) {
+  const posX = width < 0 ? x + width : x;
+  const posY = height < 0 ? y + height : y;
+  const normalizedWidth = Math.abs(width);
+  const normalizedHeight = Math.abs(height);
+
+  strokeWidth = strokeWidth || 1;
+  strokeFill = strokeFill || "rgba(255, 255, 255)";
+  bgFill = bgFill || "rgba(18, 18, 18)";
+
+  const radius = Math.min(
+    Math.abs(Math.max(normalizedWidth, normalizedHeight) / 20),
+    normalizedWidth / 2,
+    normalizedHeight / 2
+  );
+
+  // RoundRect : https://stackoverflow.com/a/3368118
+  ctx.moveTo(posX + radius, posY);
+  ctx.beginPath();
+  ctx.strokeStyle = strokeFill;
+  ctx.lineWidth = strokeWidth;
+  ctx.fillStyle = bgFill;
+  ctx.lineTo(posX + normalizedWidth - radius, posY);
+  ctx.quadraticCurveTo(
+    posX + normalizedWidth,
+    posY,
+    posX + normalizedWidth,
+    posY + radius
+  );
+  ctx.lineTo(posX + normalizedWidth, posY + normalizedHeight - radius);
+  ctx.quadraticCurveTo(
+    posX + normalizedWidth,
+    posY + normalizedHeight,
+    posX + normalizedWidth - radius,
+    posY + normalizedHeight
+  );
+  ctx.lineTo(posX + radius, posY + normalizedHeight);
+  ctx.quadraticCurveTo(
+    posX,
+    posY + normalizedHeight,
+    posX,
+    posY + normalizedHeight - radius
+  );
+  ctx.lineTo(posX, posY + radius);
+  ctx.quadraticCurveTo(posX, posY, posX + radius, posY);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
 }
+
 export function drawLine(
   ctx: CanvasRenderingContext2D,
-  startX: number,
-  startY: number,
-  endX: number,
-  endY: number
-) :Tools {
-  ctx.strokeStyle = fillColor;
-  ctx.beginPath();
-  ctx.moveTo(startX, startY);
-  ctx.lineTo(endX, endY);
-  ctx.stroke();
-  return {
-    type: "line",
-    x1: startX,
-    y1: startY,
-    x2: endX,
-    y2: endY,
-  };
-}
+  fromX: number,
+  fromY: number,
+  toX: number,
+  toY: number,
+  strokeWidth: number,
+  strokeFill: string
+) {
+  strokeWidth = strokeWidth || 1;
+  strokeFill = strokeFill || "rgba(255, 255, 255)";
 
+  ctx.beginPath();
+  ctx.strokeStyle = strokeFill;
+  ctx.lineWidth = strokeWidth;
+  ctx.moveTo(fromX, fromY);
+  ctx.lineTo(toX, toY);
+  ctx.stroke();
+}
 export function drawArrow(
   ctx: CanvasRenderingContext2D,
-  startX: number,
-  startY: number,
-  endX: number,
-  endY: number
-) :Tools {
-  const headLength = 10;
-  const angle = Math.atan2(endY - startY, endX - startX);
+  fromX: number,
+  fromY: number,
+  toX: number,
+  toY: number,
+  strokeWidth: number,
+  strokeFill: string
+) {
 
-  ctx.strokeStyle = fillColor;
+  ctx.strokeStyle = strokeFill;
+  ctx.lineWidth = strokeWidth;
 
-  ctx.beginPath();
-  ctx.moveTo(startX, startY);
-  ctx.lineTo(endX, endY);
-  ctx.stroke();
+  const angle = Math.atan2(toY - fromY, toX - fromX);
 
   ctx.beginPath();
-  ctx.moveTo(endX, endY);
+  ctx.moveTo(fromX, fromY);
+  ctx.lineTo(toX, toY);
+  ctx.stroke();
+
+  const arrowSize = 10; 
+  ctx.beginPath();
+  ctx.moveTo(toX, toY);
   ctx.lineTo(
-    endX - headLength * Math.cos(angle - Math.PI / 6),
-    endY - headLength * Math.sin(angle - Math.PI / 6)
+    toX - arrowSize * Math.cos(angle - Math.PI / 6),
+    toY - arrowSize * Math.sin(angle - Math.PI / 6)
   );
-  ctx.moveTo(endX, endY);
+  ctx.moveTo(toX, toY);
   ctx.lineTo(
-    endX - headLength * Math.cos(angle + Math.PI / 6),
-    endY - headLength * Math.sin(angle + Math.PI / 6)
+    toX - arrowSize * Math.cos(angle + Math.PI / 6),
+    toY - arrowSize * Math.sin(angle + Math.PI / 6)
   );
   ctx.stroke();
-  return {
-    type: "arrow",
-    x1: startX,
-    y1: startY,
-    x2: endX,
-    y2: endY,
-  };
 }
 
-export function drawCircle(
+export function drawEllipse(
   ctx: CanvasRenderingContext2D,
-  startX: number,
-  startY: number,
-  endX?: number,
-  endY?: number,
-  radius = 0
-) : Tools{
-  if (radius == 0) {
-    radius = Math.sqrt((endX! - startX) ** 2 + (endY! - startY) ** 2);
-  }
-  
-  ctx.strokeStyle = fillColor;
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  strokeWidth: number,
+  strokeFill: string,
+  bgFill: string
+) {
+  strokeWidth = strokeWidth || 1;
+  strokeFill = strokeFill || "rgba(255, 255, 255)";
+  bgFill = bgFill || "rgba(18, 18, 18)";
+
   ctx.beginPath();
-  ctx.arc(startX, startY, radius, 0, Math.PI * 2);
+  ctx.strokeStyle = strokeFill;
+  ctx.lineWidth = strokeWidth;
+  ctx.fillStyle = bgFill;
+  ctx.ellipse(x, y, width, height, 0, 0, 2 * Math.PI);
+  ctx.fill();
   ctx.stroke();
-  return {
-    type: "circle",
-    x1: startX,
-    y1: startY,
-    radius,
-  };
 }
+
 export function drawDiamond(
   ctx: CanvasRenderingContext2D,
-  startX: number,
-  startY: number,
-  endX: number,
-  endY: number
-) :Tools {
-  const width = endX - startX;
-  const height = endY - startY;
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  strokeWidth: number,
+  strokeFill: string,
+  bgFill: string
+) {
+  
+  ctx.fillStyle = bgFill;
+  ctx.strokeStyle = strokeFill;
+  ctx.lineWidth = strokeWidth;
 
-  ctx.strokeStyle = fillColor;
   ctx.beginPath();
-  ctx.moveTo(startX + width / 2, startY);
-  ctx.lineTo(startX, startY + height / 2);
-  ctx.lineTo(startX + width / 2, endY);
-  ctx.lineTo(endX, startY + height / 2);
-  ctx.closePath();
+  ctx.moveTo(x, y - height / 2); 
+  ctx.lineTo(x + width / 2, y); 
+  ctx.lineTo(x, y + height / 2); 
+  ctx.lineTo(x - width / 2, y); 
+  ctx.closePath(); 
+
+
+  ctx.fill();
+
   ctx.stroke();
-  return {
-    type: "diamond",
-    x1: startX,
-    y1: startY,
-    x2: endX,
-    y2: endY,
-  };
 }
 
 export function drawPencil(
   ctx: CanvasRenderingContext2D,
-  points: { x1: number; y1: number }[]
-) : Tools | undefined {
-  if (points.length < 2) return;
-
-  ctx.strokeStyle = fillColor;
+  points: { x: number; y: number }[],
+  strokeWidth: number,
+  strokeFill: string
+) {
   ctx.beginPath();
-  ctx.moveTo(points[0].x1, points[0].y1);
-  points.forEach((point) => {
-    ctx.lineTo(point.x1, point.y1);
-  });
+  ctx.strokeStyle = strokeFill;
+  ctx.lineWidth = strokeWidth;
+  if (points[0] === undefined) return null;
+  ctx.moveTo(points[0].x, points[0].y);
+  points.forEach((point) => ctx.lineTo(point.x, point.y));
   ctx.stroke();
-  return {
-    type: "pencil",
-    points,
-  };
 }
